@@ -1,24 +1,9 @@
-// The T3 Code window on Silk UI. This is apps/web/src/main.tsx with the React DOM root
-// swapped for a Silk UI root; everything it renders is apps/web's own code.
-import React from "react";
-import { createRoot } from "@silkui/react";
+// The T3 Code desktop app on Silk UI. Electron's main process, preload and IPC collapse into
+// this one process: start the local server, give the web code its desktop functions, render.
+import { startBackend } from "./desktop/backend";
+import { createDesktopBridge } from "./desktop/bridge";
 
-import "@fontsource-variable/inter";
-import "~/index.css";
-
-import { startAppServices } from "~/appInit";
-import { AppRoot } from "~/AppRoot";
-import { whenLocaleReady } from "~/i18n/runtime";
-
-const router = startAppServices();
-
-export const startup = router
-  .load()
-  .then(whenLocaleReady)
-  .then(() => {
-    createRoot().render(
-      <React.StrictMode>
-        <AppRoot router={router} />
-      </React.StrictMode>,
-    );
-  });
+const backend = await startBackend();
+// apps/web decides it is the desktop app when its modules load, so this comes first.
+window.desktopBridge = createDesktopBridge(backend);
+await (await import("./app")).startup;

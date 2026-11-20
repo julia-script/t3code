@@ -1,0 +1,16 @@
+{
+  "extends": "../web/tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "types": ["node"],
+    "paths": { "~/*": ["../web/src/*"] },
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // The app process is plain Node code, not an Effect program.
+        "diagnosticSeverity": { "nodeBuiltinImport": "off", "extendsNativeError": "off" }
+      }
+    ]
+  },
+  "include": ["src", "../web/src/vite-env.d.ts"]
+}
