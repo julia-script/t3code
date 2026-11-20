@@ -337,3 +337,6 @@ minimumReleaseAgeExclude:
   - "@cursor/sdk-linux-x64@1.4.1"
   - "@cursor/sdk-win32-x64@1.4.1"
   - "@cursor/sdk@1.4.1"
+  - "@silkui/core@0.1.10"
+  - "@silkui/react@0.1.10"
+  - "@silkui/vite@0.1.10"
