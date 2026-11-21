@@ -4,7 +4,7 @@ import React from "react";
 import { createRoot } from "@silkui/react";
 
 import "@fontsource-variable/inter";
-import "~/index.css";
+import "./styles.css";
 
 import { startAppServices } from "~/appInit";
 import { AppRoot } from "~/AppRoot";
