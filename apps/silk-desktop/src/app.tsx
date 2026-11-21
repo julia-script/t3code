@@ -10,6 +10,8 @@ import { startAppServices } from "~/appInit";
 import { AppRoot } from "~/AppRoot";
 import { whenLocaleReady } from "~/i18n/runtime";
 
+import { probing, walkRoutes } from "./probe";
+
 const router = startAppServices();
 
 export const startup = router
@@ -24,4 +26,5 @@ export const startup = router
       </React.StrictMode>,
     );
     console.error("[silk-desktop] rendered");
+    if (probing) void walkRoutes(router);
   });
