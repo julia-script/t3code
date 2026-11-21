@@ -22,7 +22,9 @@ export const webViews = {
   },
 };
 
-const ZOOM_STEPS = [0.25, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5];
+const ZOOM_STEPS = [
+  0.25, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5,
+];
 
 interface Tab {
   state: DesktopPreviewTabState;
@@ -56,11 +58,9 @@ export function createPreviewBridge(): DesktopPreviewBridge {
   const openLink = listeners<[DesktopPreviewOpenLinkEvent]>();
   const findResult = listeners<[DesktopPreviewFindResultEvent]>();
   const none = () => () => {};
-  const rejects =
-    (name: string) =>
-    async (): Promise<never> => {
-      throw new PreviewUnsupported(name);
-    };
+  const rejects = (name: string) => async (): Promise<never> => {
+    throw new PreviewUnsupported(name);
+  };
 
   const tab = (tabId: string) => {
     const found = tabs.get(tabId);
@@ -98,7 +98,12 @@ export function createPreviewBridge(): DesktopPreviewBridge {
         update(entry, {
           navStatus: event.ok
             ? { kind: "Success", ...page() }
-            : { kind: "LoadFailed", ...page(), code: -2, description: event.error ?? "" },
+            : {
+                kind: "LoadFailed",
+                ...page(),
+                code: (event as { errorCode?: number }).errorCode ?? -2,
+                description: event.error ?? "",
+              },
         }),
       urlchange: () => {
         const status = entry.state.navStatus;
@@ -106,12 +111,13 @@ export function createPreviewBridge(): DesktopPreviewBridge {
       },
       titlechange: () => {
         const status = entry.state.navStatus;
-        if (status.kind !== "Idle") update(entry, { navStatus: { ...status, title: page().title } });
+        if (status.kind !== "Idle")
+          update(entry, { navStatus: { ...status, title: page().title } });
       },
       historychange: () =>
         update(entry, { canGoBack: view.canGoBack, canGoForward: view.canGoForward }),
       faviconchange: () => {
-        // apps/web wants a data URL; Silk UI reports the icon's URL, which the panel can't load.
+        // Silk UI reports a data URL since SilkUI#351; older builds give the icon's URL.
         if (view.favicon.startsWith("data:")) {
           update(entry, {
             favicon: { dataUrl: view.favicon, pageUrl: view.url, capturedAt: Date.now() },
