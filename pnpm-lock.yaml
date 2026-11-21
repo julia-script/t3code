@@ -1053,11 +1053,11 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       '@silkui/core':
-        specifier: 0.1.10
-        version: 0.1.10
+        specifier: 0.1.11
+        version: 0.1.11
       '@silkui/react':
-        specifier: 0.1.10
-        version: 0.1.10(@types/react@19.3.0)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0))(react@19.3.0)
+        specifier: 0.1.11
+        version: 0.1.11(@types/react@19.3.0)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0))(react@19.3.0)
       '@t3tools/client-runtime':
         specifier: workspace:*
         version: link:../../packages/client-runtime
@@ -1078,8 +1078,8 @@ importers:
         version: 19.3.0
     devDependencies:
       '@silkui/vite':
-        specifier: 0.1.10
-        version: 0.1.10(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0))
+        specifier: 0.1.11
+        version: 0.1.11(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0))
       '@tailwindcss/vite':
         specifier: 4.3.3
         version: 4.3.3(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0))
@@ -6944,11 +6944,11 @@ packages:
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
 
-  '@silkui/core@0.1.10':
-    resolution: {integrity: sha512-MJtTMpAEmERNfcznV+vs9DIxJmTLpXXoccHfr/h+nhKm79yR23/YKzzZs+HlTnknuPuiq434w716cw5wplfDZQ==}
+  '@silkui/core@0.1.11':
+    resolution: {integrity: sha512-/2FRXux/VJ+tGFdCERUzHaoUQSEjHIS7HHxszXXXBGjJw/YVzEFMP6C48QmbAeTxVYLm/1bhX1vFwosMl23ozA==}
 
-  '@silkui/react@0.1.10':
-    resolution: {integrity: sha512-T+CSA8LqnXTy8AvHqMmgvDE7MLRmVyEC7aJH2bpjvYsISfckvWnDveEmbvHwZYfehSeq3ecyesMaPlMGILev9w==}
+  '@silkui/react@0.1.11':
+    resolution: {integrity: sha512-ZI6C40cSHJsDiORPB5wsTf9mIA8HkapZbv66BULeu+TKVy7bExjn0+wM6wbzjF6WZTHAULQ2xpxJLR+sr64BiA==}
     peerDependencies:
       '@types/react': ^19.0.0
       react: ^19.3.0
@@ -6959,8 +6959,8 @@ packages:
       vite:
         optional: true
 
-  '@silkui/vite@0.1.10':
-    resolution: {integrity: sha512-2lC3SglDXNfEDAtghUOE9Kkz17ehVBQ2CAm1IVnYX7LHa6UdABInCKMqLIx+5utyDNVHpL/QHOTYiXStWoOiGA==}
+  '@silkui/vite@0.1.11':
+    resolution: {integrity: sha512-X35pSgekiH7nHDFF0wB4Frx/lVhw4VCevDcUxwkaqaEVFsvylcjuQCEcr4OjggVluduTtKCZlJNuMrqNPR99Dw==}
     hasBin: true
     peerDependencies:
       vite: ^8.0.0
@@ -17026,14 +17026,14 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
-  '@silkui/core@0.1.10':
+  '@silkui/core@0.1.11':
     dependencies:
       '@types/mdast': 4.0.4
       csstype: 3.2.3
 
-  '@silkui/react@0.1.10(@types/react@19.3.0)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0))(react@19.3.0)':
+  '@silkui/react@0.1.11(@types/react@19.3.0)(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0))(react@19.3.0)':
     dependencies:
-      '@silkui/core': 0.1.10
+      '@silkui/core': 0.1.11
       react: 19.3.0
       react-reconciler: 0.34.0(react@19.3.0)
       react-refresh: 0.18.0
@@ -17041,7 +17041,7 @@ snapshots:
       '@types/react': 19.3.0
       vite: '@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0)'
 
-  '@silkui/vite@0.1.10(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0))':
+  '@silkui/vite@0.1.11(@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0))':
     dependencies:
       ts-content-mapper: 0.1.1
       vite: '@voidzero-dev/vite-plus-core@1.4.0(@types/node@24.12.4)(@volar/typescript@2.4.28(typescript@6.0.3))(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(typescript@6.0.3)(unrun@0.2.39)(yaml@2.9.0)'

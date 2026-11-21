@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
-    "@silkui/core": "0.1.10",
-    "@silkui/react": "0.1.10",
+    "@silkui/core": "0.1.11",
+    "@silkui/react": "0.1.11",
     "@t3tools/client-runtime": "workspace:*",
     "@t3tools/contracts": "workspace:*",
     "@t3tools/shared": "workspace:*",
@@ -20,7 +20,7 @@
     "react": "catalog:"
   },
   "devDependencies": {
-    "@silkui/vite": "0.1.10",
+    "@silkui/vite": "0.1.11",
     "@tailwindcss/vite": "^4.0.0",
     "@tanstack/router-plugin": "^1.161.0",
     "@types/node": "catalog:",
