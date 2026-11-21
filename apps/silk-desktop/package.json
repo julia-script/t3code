@@ -17,7 +17,8 @@
     "@t3tools/shared": "workspace:*",
     "@t3tools/web": "workspace:*",
     "effect": "catalog:",
-    "react": "catalog:"
+    "react": "catalog:",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@silkui/vite": "0.1.11",

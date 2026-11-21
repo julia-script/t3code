@@ -27,6 +27,23 @@ type PluginFactory = (options?: Record<string, unknown>) => Plugin | Plugin[];
 const silk = await load<PluginFactory>("@silkui/vite", "vite/src/index.js");
 const react = await load<PluginFactory>("@silkui/react/vite", "react/src/vite.js");
 
+// apps/web's browser panel imports its Electron <webview> host relatively; use the Silk UI one.
+const hostedWebview = resolve(web, "src/browser/HostedBrowserWebview.tsx");
+const silkWebview = fileURLToPath(new URL("src/browser/HostedBrowserWebview.tsx", import.meta.url));
+const browserHost: Plugin = {
+  name: "silk-desktop-browser-host",
+  enforce: "pre",
+  async resolveId(id, importer, options) {
+    // The copy keeps apps/web's dependencies, so they resolve from apps/web.
+    if (importer === silkWebview && !id.startsWith(".") && !id.startsWith("~/") && !id.startsWith("@silkui/")) {
+      return this.resolve(id, hostedWebview, { ...options, skipSelf: true });
+    }
+    if (!importer?.startsWith(resolve(web, "src")) || !/HostedBrowserWebview(\.tsx)?$/.test(id)) return null;
+    const resolved = await this.resolve(id, importer, { ...options, skipSelf: true });
+    return resolved?.id === hostedWebview ? silkWebview : null;
+  },
+};
+
 export default defineConfig({
   resolve: {
     alias: [
@@ -39,6 +56,7 @@ export default defineConfig({
     dedupe: ["react", "react-reconciler", "scheduler"],
   },
   plugins: [
+    browserHost,
     tanstackRouter({
       autoCodeSplitting: false,
       routesDirectory: `${web}/src/routes`,

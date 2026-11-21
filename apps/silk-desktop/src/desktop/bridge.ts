@@ -28,6 +28,7 @@ import {
 
 import { bearerToken, type Backend } from "./backend";
 import { menuActions } from "./menu";
+import { createPreviewBridge } from "./preview";
 
 class Unsupported extends Error {
   constructor(name: string) {
@@ -279,8 +280,8 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
     webLinks: { setReady: async () => {}, onOpen: noUnsubscribe },
     appActivation: { setReady: async () => {}, complete: async () => {}, onRequest: noUnsubscribe },
 
-    // The browser panel: waiting on the Silk UI webview.
-    preview: unsupportedPart("preview"),
+    // The browser panel, on Silk UI web views.
+    preview: createPreviewBridge(),
   };
   return bridge;
 }
