@@ -49,6 +49,13 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: /^~\//, replacement: `${web}/src/` },
+      // gt-react's default export condition is its server entry, which refuses to start an SPA.
+      {
+        find: /^gt-react$/,
+        replacement: createRequire(resolve(web, "package.json"))
+          .resolve("gt-react")
+          .replace(/index\.server\.(c?js|mjs)$/, "index.client.mjs"),
+      },
       ...Object.entries(entries).map(([id, file]) => ({
         find: new RegExp(`^${id.replaceAll("/", "\\/")}$`),
         replacement: local ? source(file) : installed(id),
