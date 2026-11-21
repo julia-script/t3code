@@ -5,12 +5,13 @@ import "@silkui/core/globals";
 import { startBackend } from "./desktop/backend";
 import { createDesktopBridge } from "./desktop/bridge";
 import { installApplicationMenu } from "./desktop/menu";
-import { installShims, probing, reportMissingApis, watchErrors } from "./probe";
+import { installShims, probing, reportMissingApis, watchErrors, watchStyles } from "./probe";
 
 if (probing) {
   reportMissingApis();
   installShims();
   watchErrors();
+  watchStyles();
 }
 const backend = await startBackend();
 void installApplicationMenu("T3 Code");

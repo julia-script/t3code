@@ -145,6 +145,51 @@ export function watchErrors() {
   );
 }
 
+// T3_SILK_PROBE_STYLES=1: log style elements and constructed sheets as they come and go.
+export function watchStyles() {
+  if (process.env.T3_SILK_PROBE_STYLES !== "1") return;
+  const isSheetNode = (node: unknown) =>
+    node instanceof Element && (node.localName === "style" || node.localName === "link");
+  const describe = (node: Element) =>
+    `${node.localName} ${[...node.attributes].map((a) => `${a.name}=${a.value}`).join(" ")} ` +
+    JSON.stringify((node.textContent ?? "").slice(0, 300));
+  const stack = () => (new Error().stack ?? "").split("\n").slice(2, 8).join(" | ");
+  const proto = Node.prototype as unknown as Record<string, (...args: unknown[]) => unknown>;
+  for (const name of ["appendChild", "insertBefore", "removeChild", "replaceChild"]) {
+    const original = proto[name]!;
+    proto[name] = function (this: Node, ...args: unknown[]) {
+      for (const arg of args) if (isSheetNode(arg)) log(`style ${name}`, describe(arg as Element), stack());
+      return original.apply(this, args);
+    };
+  }
+  const remove = Element.prototype.remove;
+  Element.prototype.remove = function () {
+    if (isSheetNode(this)) log("style remove", describe(this), stack());
+    return remove.call(this);
+  };
+  if (typeof CSSStyleSheet !== "undefined") {
+    for (const name of ["replace", "replaceSync", "insertRule", "deleteRule"] as const) {
+      const original = CSSStyleSheet.prototype[name] as (...args: unknown[]) => unknown;
+      if (typeof original !== "function") continue;
+      (CSSStyleSheet.prototype as unknown as Record<string, unknown>)[name] = function (this: CSSStyleSheet, ...args: unknown[]) {
+        log(`sheet ${name}`, JSON.stringify(String(args[0] ?? "").slice(0, 300)), stack());
+        return original.apply(this, args);
+      };
+    }
+  }
+  const adopted = Object.getOwnPropertyDescriptor(Document.prototype, "adoptedStyleSheets");
+  if (adopted?.set) {
+    Object.defineProperty(Document.prototype, "adoptedStyleSheets", {
+      ...adopted,
+      set(value: CSSStyleSheet[]) {
+        log("adoptedStyleSheets set", value.length, stack());
+        adopted.set!.call(this, value);
+      },
+    });
+  }
+  log("style watch on");
+}
+
 const ROUTES = [
   "/",
   "/new",
