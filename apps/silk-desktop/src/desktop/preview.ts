@@ -117,7 +117,7 @@ export function createPreviewBridge(): DesktopPreviewBridge {
       historychange: () =>
         update(entry, { canGoBack: view.canGoBack, canGoForward: view.canGoForward }),
       faviconchange: () => {
-        // Silk UI reports a data URL since SilkUI#351; older builds give the icon's URL.
+        // Silk UI gives a data URL; skip anything else rather than show a broken icon.
         if (view.favicon.startsWith("data:")) {
           update(entry, {
             favicon: { dataUrl: view.favicon, pageUrl: view.url, capturedAt: Date.now() },
