@@ -190,6 +190,32 @@ export function watchStyles() {
   log("style watch on");
 }
 
+// T3_SILK_PROBE_INPUT=1: log keyboard and text input as the window sees it, before any handler.
+export function watchInput() {
+  if (process.env.T3_SILK_PROBE_INPUT !== "1") return;
+  const name = (node: unknown) =>
+    node instanceof Element
+      ? `${node.localName}${node.getAttribute("aria-label") ? `[${node.getAttribute("aria-label")}]` : ""}`
+      : String(node);
+  for (const type of ["keydown", "keyup", "beforeinput", "input", "compositionend", "focusin", "focusout"]) {
+    window.addEventListener(
+      type,
+      (event) => {
+        const target = event.target as HTMLTextAreaElement | null;
+        const extra =
+          event instanceof KeyboardEvent
+            ? ` key=${JSON.stringify(event.key)} code=${event.code}`
+            : ` inputType=${(event as InputEvent).inputType} data=${JSON.stringify((event as InputEvent).data)}`;
+        log(
+          `input ${type} target=${name(target)} active=${name(document.activeElement)} value=${JSON.stringify(target?.value)}${extra} defaultPrevented=${event.defaultPrevented}`,
+        );
+      },
+      true,
+    );
+  }
+  log("input watch on");
+}
+
 const ROUTES = [
   "/",
   "/new",

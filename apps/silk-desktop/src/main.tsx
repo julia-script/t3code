@@ -5,7 +5,7 @@ import "@silkui/core/globals";
 import { startBackend } from "./desktop/backend";
 import { createDesktopBridge } from "./desktop/bridge";
 import { installApplicationMenu } from "./desktop/menu";
-import { installShims, probing, reportMissingApis, watchErrors, watchStyles } from "./probe";
+import { installShims, probing, reportMissingApis, watchErrors, watchInput, watchStyles } from "./probe";
 
 if (probing) {
   reportMissingApis();
@@ -13,6 +13,7 @@ if (probing) {
   watchErrors();
 }
 watchStyles();
+watchInput();
 const backend = await startBackend();
 void installApplicationMenu("T3 Code");
 // apps/web decides it is the desktop app when its modules load, so this comes first.
