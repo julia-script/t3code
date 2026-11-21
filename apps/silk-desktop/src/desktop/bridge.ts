@@ -54,14 +54,7 @@ const rejects =
 const noUnsubscribe = () => () => {};
 
 /** Every method of a part not built yet: listeners register nowhere, calls reject. */
-function unsupportedPart<T extends object>(part: string): T {
-  return new Proxy({} as T, {
-    get: (_target, name) => {
-      if (typeof name !== "string" || name === "then") return undefined;
-      return name.startsWith("on") ? noUnsubscribe : rejects(`${part}.${name}`);
-    },
-  });
-}
+const cliOff = { supported: false, installedPath: null, onPath: false, launcherPath: null };
 
 function jsonStore<T>(file: string) {
   return {
@@ -259,7 +252,13 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
 
     // Not part of this port: SSH hosts, WSL, server exposure, Snap Shot, updates, CLI shim.
     requestSnapShotPermissions: rejects("requestSnapShotPermissions"),
-    getSnapShotState: rejects("getSnapShotState"),
+    getSnapShotState: async () => ({
+      mode: "unavailable",
+      shortcut: { kind: "both-shift-keys" },
+      shortcutRegistered: false,
+      shortcutMessage: null,
+      message: "Snap Shot is not part of the Silk UI desktop app yet.",
+    }),
     setupSnapShot: rejects("setupSnapShot"),
     previewSnapShotConfig: rejects("previewSnapShotConfig"),
     applySnapShotConfig: rejects("applySnapShotConfig"),
@@ -285,7 +284,14 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
     setServerExposureMode: rejects("setServerExposureMode"),
     setTailscaleServeEnabled: rejects("setTailscaleServeEnabled"),
     getAdvertisedEndpoints: async () => [],
-    getWslState: rejects("getWslState"),
+    getWslState: async () => ({
+      enabled: false,
+      distro: null,
+      available: false,
+      wslOnly: false,
+      distros: [],
+      preflightError: null,
+    }),
     setWslBackendEnabled: rejects("setWslBackendEnabled"),
     setWslDistro: rejects("setWslDistro"),
     setWslOnly: rejects("setWslOnly"),
@@ -297,7 +303,12 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
     downloadUpdate: rejects("downloadUpdate"),
     installUpdate: rejects("installUpdate"),
     onUpdateState: noUnsubscribe,
-    cliCommand: unsupportedPart("cliCommand"),
+    cliCommand: {
+      getState: async () => cliOff,
+      install: rejects("cliCommand.install"),
+      uninstall: rejects("cliCommand.uninstall"),
+      addToPath: rejects("cliCommand.addToPath"),
+    },
     webLinks: { setReady: async () => {}, onOpen: noUnsubscribe },
     appActivation: { setReady: async () => {}, complete: async () => {}, onRequest: noUnsubscribe },
 

@@ -45,6 +45,28 @@ const browserHost: Plugin = {
   },
 };
 
+// apps/web is written for the React Compiler (its own build runs it), and some render-phase state
+// syncs loop without it, so run it here too, compiling JSX for the Silk UI renderer.
+const reactCompiler: Plugin = {
+  name: "silk-desktop-react-compiler",
+  enforce: "pre",
+  transform: {
+    filter: { id: { include: /\.[jt]sx?$/, exclude: /node_modules/ } },
+    async handler(code, id) {
+      const { transform } = await import(
+        pathToFileURL(createRequire(resolve(web, "package.json")).resolve("oxc-transform-react")).href
+      );
+      const result = await transform(id.split("?")[0], code, {
+        jsx: { runtime: "automatic", importSource: "@silkui/react", development: false, refresh: false },
+        reactCompiler: /\b[A-Z]|\buse[A-Z]/.test(code) ? {} : false,
+        sourcemap: false,
+      });
+      if (result.fatal) this.error(result.errors.map((error: { message: string }) => error.message).join("\n"));
+      return { code: result.code, map: null };
+    },
+  },
+};
+
 export default defineConfig({
   resolve: {
     alias: [
@@ -65,6 +87,7 @@ export default defineConfig({
   },
   plugins: [
     browserHost,
+    reactCompiler,
     tanstackRouter({
       autoCodeSplitting: false,
       routesDirectory: `${web}/src/routes`,
