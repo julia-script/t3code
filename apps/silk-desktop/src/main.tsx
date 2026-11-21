@@ -11,8 +11,8 @@ if (probing) {
   reportMissingApis();
   installShims();
   watchErrors();
-  watchStyles();
 }
+watchStyles();
 const backend = await startBackend();
 void installApplicationMenu("T3 Code");
 // apps/web decides it is the desktop app when its modules load, so this comes first.
