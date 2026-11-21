@@ -14,6 +14,7 @@
     "@silkui/react": "0.1.10",
     "@t3tools/client-runtime": "workspace:*",
     "@t3tools/contracts": "workspace:*",
+    "@t3tools/shared": "workspace:*",
     "@t3tools/web": "workspace:*",
     "effect": "catalog:",
     "react": "catalog:"

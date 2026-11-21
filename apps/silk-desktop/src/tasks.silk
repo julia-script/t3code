@@ -17,6 +17,8 @@ effect fn app() -> App
   ? &mut Allocator {
   return run App.make("t3code-silk")
     |> App.framework(Framework.react("."))
+    // A pnpm workspace package: `vp build` makes dist/app.js and dist/app.sheet first.
+    |> App.prebuilt("dist/app.js")
     |> App.target(Target.window(Window { title: "T3 Code", width: 1280.0, height: 820.0 }))
     // The window starts the T3 server and reads its files: the full Node runtime.
     |> App.runtime(Runtime.node())
