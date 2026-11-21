@@ -280,7 +280,14 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
     onSshPasswordPrompt: noUnsubscribe,
     onSshPasswordPromptSettled: noUnsubscribe,
     resolveSshPasswordPrompt: rejects("resolveSshPasswordPrompt"),
-    getServerExposureState: rejects("getServerExposureState"),
+    // The server listens on loopback only; network access is not part of this port.
+    getServerExposureState: async () => ({
+      mode: "local-only",
+      endpointUrl: null,
+      advertisedHost: null,
+      tailscaleServeEnabled: false,
+      tailscaleServePort: 443,
+    }),
     setServerExposureMode: rejects("setServerExposureMode"),
     setTailscaleServeEnabled: rejects("setTailscaleServeEnabled"),
     getAdvertisedEndpoints: async () => [],
