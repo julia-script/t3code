@@ -1,3 +1,5 @@
+// Browser globals (window, document, ...) for apps/web; first, so they exist before anything runs.
+import "@silkui/core/globals";
 // The T3 Code desktop app on Silk UI. Electron's main process, preload and IPC collapse into
 // this one process: start the local server, give the web code its desktop functions, render.
 import { startBackend } from "./desktop/backend";

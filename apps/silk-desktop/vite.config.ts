@@ -15,6 +15,7 @@ const source = (file: string) => resolve(local ?? "", file);
 const installed = createRequire(import.meta.url).resolve;
 const entries = {
   "@silkui/core": "core/src/index.js",
+  "@silkui/core/globals": "core/src/globals.js",
   "@silkui/react": "react/src/index.js",
   "@silkui/react/jsx-runtime": "react/src/jsx-runtime.js",
   "@silkui/react/jsx-dev-runtime": "react/src/jsx-dev-runtime.js",
