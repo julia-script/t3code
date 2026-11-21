@@ -16,7 +16,7 @@ export const startup = router
   .load()
   .then(whenLocaleReady)
   .then(() => {
-    createRoot().render(
+    createRoot(document.body as never).render(
       <React.StrictMode>
         <AppRoot router={router} />
       </React.StrictMode>,
