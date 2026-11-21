@@ -2,18 +2,32 @@
 // main process behind preload and IPC; here the window's JavaScript runs in the app process,
 // so each one is a plain function over Node's APIs. What Silk UI cannot do from JavaScript yet
 // (native dialogs and menus, the browser panel, window state) answers as unsupported.
-import { spawn } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { basename, join } from "node:path";
+
+import {
+  appWindow,
+  openExternal,
+  setBadge,
+  showContextMenu,
+  showOpenDialog,
+  startFileDrag,
+  type MenuItem,
+} from "@silkui/core";
+import { showContextMenuFallback } from "~/contextMenuFallback";
+import { PROJECT_FAVICON_EXTENSIONS } from "@t3tools/shared/projectFavicon";
 
 import {
   PRIMARY_LOCAL_ENVIRONMENT_ID,
   type ClientSettings,
+  type ContextMenuItem,
   type DesktopBridge,
   type DesktopEnvironmentBootstrap,
 } from "@t3tools/contracts";
 
 import { bearerToken, type Backend } from "./backend";
+import { menuActions } from "./menu";
 
 class Unsupported extends Error {
   constructor(name: string) {
@@ -62,21 +76,36 @@ function jsonStore<T>(file: string) {
   };
 }
 
-function openWithSystem(target: string): Promise<boolean> {
-  const [command, args] =
-    process.platform === "darwin"
-      ? ["open", [target]]
-      : process.platform === "win32"
-        ? ["cmd", ["/c", "start", "", target]]
-        : ["xdg-open", [target]];
-  return new Promise((done) => {
-    const child = spawn(command, args, { stdio: "ignore", detached: true });
-    child.once("error", () => done(false));
-    child.once("spawn", () => {
-      child.unref();
-      done(true);
-    });
-  });
+const PICKED_THEME_FILE_MAX_BYTES = 256 * 1024;
+
+async function pickPaths(options: Parameters<typeof showOpenDialog>[0]): Promise<string[] | null> {
+  const result = await showOpenDialog(options);
+  return result.canceled || result.filePaths.length === 0 ? null : result.filePaths;
+}
+
+/** apps/web's menu items as a native menu; resolves to the chosen item's id. */
+async function contextMenu<T extends string>(
+  items: readonly ContextMenuItem<T>[],
+  position?: { x: number; y: number },
+): Promise<T | null> {
+  let chosen: T | null = null;
+  const template = (list: readonly ContextMenuItem<T>[]): MenuItem[] =>
+    list.flatMap((item): MenuItem[] => [
+      ...(item.separatorBefore ? [{ type: "separator" } satisfies MenuItem] : []),
+      item.children
+        ? { label: item.label, submenu: template(item.children) }
+        : {
+            label: item.label,
+            enabled: !item.disabled && !item.header,
+            ...(item.checked === undefined ? {} : { type: "checkbox", checked: item.checked }),
+            click: () => {
+              chosen = item.id;
+            },
+          },
+    ]);
+  const shown = await showContextMenu(template(items), position);
+  // Where the system has no menu, apps/web draws its own, as it does in a browser.
+  return shown ? chosen : showContextMenuFallback(items, position);
 }
 
 export function createDesktopBridge(backend: Backend): DesktopBridge {
@@ -103,11 +132,13 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
     getRelayTelemetryEnabled: () => false,
     getPathForFile: (file) => (file as File & { path?: string }).path ?? unsupported("getPathForFile"),
     getClientPlatform: () => process.platform,
-    setNotificationBadge: async () => {},
+    setNotificationBadge: async ({ count }) => {
+      await setBadge(count > 0 ? String(count) : "");
+    },
     onNotificationBadgeClear: noUnsubscribe,
     onTrackpadScrollBegin: noUnsubscribe,
     onTrackpadScrollEnd: noUnsubscribe,
-    revealWindow: async () => {},
+    revealWindow: async () => appWindow.focus(),
     getSystemLocale: () => locale,
     getPreferredSystemLanguages: () => [locale],
     getPrimaryPasteEnabled: () => true,
@@ -134,7 +165,7 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
       return true;
     },
 
-    openExternal: (url) => openWithSystem(url),
+    openExternal: (url) => openExternal(url),
     openSystemSettings: rejects("openSystemSettings"),
     checkSystemPermission: async () => true,
     probeRemoteEditors: async () => [],
@@ -152,19 +183,55 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
     },
 
     // Window state: Silk UI has no JavaScript API for these yet.
-    getWindowFullscreenState: () => false,
-    onWindowFullscreenStateChange: noUnsubscribe,
-    getWindowZoomFactor: () => 1,
-    onMenuAction: noUnsubscribe,
+    getWindowFullscreenState: () => appWindow.isFullScreen(),
+    onWindowFullscreenStateChange: (listener) => {
+      const handler = (event: { fullScreen: boolean }) => listener(event.fullScreen);
+      appWindow.addEventListener("fullscreenchange", handler);
+      return () => appWindow.removeEventListener("fullscreenchange", handler);
+    },
+    getWindowZoomFactor: () => appWindow.getZoomFactor(),
+    onMenuAction: (listener) => menuActions.subscribe(listener),
     onQuitShortcut: noUnsubscribe,
     pasteAsText: rejects("pasteAsText"),
 
-    // Native dialogs, menus and drags: waiting on Silk UI desktop APIs.
-    pickFolder: rejects("pickFolder"),
-    pickProjectFavicon: rejects("pickProjectFavicon"),
-    pickThemeFiles: rejects("pickThemeFiles"),
-    showContextMenu: rejects("showContextMenu"),
-    startFileDrag: async () => false,
+    pickFolder: async (options) =>
+      (
+        await pickPaths({
+          properties: ["openDirectory", "createDirectory"],
+          ...(options?.initialPath ? { defaultPath: options.initialPath } : {}),
+        })
+      )?.[0] ?? null,
+    pickProjectFavicon: async (initialPath) =>
+      (
+        await pickPaths({
+          properties: ["openFile"],
+          ...(initialPath ? { defaultPath: initialPath } : {}),
+          filters: [
+            { name: "Images", extensions: PROJECT_FAVICON_EXTENSIONS.map((extension) => extension.slice(1)) },
+          ],
+        })
+      )?.[0] ?? null,
+    pickThemeFiles: async () => {
+      const paths = await pickPaths({
+        properties: ["openFile", "multiSelections"],
+        defaultPath: join(homedir(), ".vscode", "extensions"),
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      return (
+        paths?.map((path) => {
+          const name = basename(path);
+          try {
+            const size = statSync(path).size;
+            return { name, size, text: size > PICKED_THEME_FILE_MAX_BYTES ? "" : readFileSync(path, "utf8") };
+          } catch {
+            return { name, size: 0, text: "" };
+          }
+        }) ?? null
+      );
+    },
+    showContextMenu: (items, position) => contextMenu(items, position),
+    // The local backend shares this machine's files, so its path is the path to drag.
+    startFileDrag: ({ path }) => startFileDrag(path),
     setTheme: async () => {},
     toLocalBackendPath: async (_backendId, path) => path,
 
