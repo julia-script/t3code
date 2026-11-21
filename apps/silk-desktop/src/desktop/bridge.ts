@@ -24,6 +24,7 @@ import {
   type ContextMenuItem,
   type DesktopBridge,
   type DesktopEnvironmentBootstrap,
+  type DesktopUpdateState,
 } from "@t3tools/contracts";
 
 import { bearerToken, type Backend } from "./backend";
@@ -127,6 +128,26 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
 
   let token: Promise<string> | null = null;
   const locale = Intl.DateTimeFormat().resolvedOptions().locale;
+
+  const arch = process.arch === "arm64" ? "arm64" : process.arch === "x64" ? "x64" : "other";
+  const updatesOff = {
+    enabled: false,
+    status: "disabled",
+    channel: "latest",
+    currentVersion: "0.0.0",
+    hostArch: arch,
+    appArch: arch,
+    runningUnderArm64Translation: false,
+    availableVersion: null,
+    downloadedVersion: null,
+    releaseNotes: [],
+    omittedReleaseCount: 0,
+    downloadPercent: null,
+    checkedAt: null,
+    message: null,
+    errorContext: null,
+    canRetry: false,
+  } satisfies DesktopUpdateState;
 
   const bridge: DesktopBridge = {
     getAppBranding: () => ({ baseName: "T3 Code", stageLabel: "Dev", displayName: "T3 Code (Silk UI)" }),
@@ -270,7 +291,7 @@ export function createDesktopBridge(backend: Backend): DesktopBridge {
     setWslOnly: rejects("setWslOnly"),
     receiveProviderAuthCallback: rejects("receiveProviderAuthCallback"),
     cancelProviderAuthCallback: async () => {},
-    getUpdateState: rejects("getUpdateState"),
+    getUpdateState: async () => updatesOff,
     setUpdateChannel: rejects("setUpdateChannel"),
     checkForUpdate: rejects("checkForUpdate"),
     downloadUpdate: rejects("downloadUpdate"),

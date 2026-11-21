@@ -14,11 +14,14 @@ const router = startAppServices();
 
 export const startup = router
   .load()
+  .then(() => console.error("[silk-desktop] router loaded"))
   .then(whenLocaleReady)
   .then(() => {
+    console.error("[silk-desktop] first render");
     createRoot(document.body as never).render(
       <React.StrictMode>
         <AppRoot router={router} />
       </React.StrictMode>,
     );
+    console.error("[silk-desktop] rendered");
   });
