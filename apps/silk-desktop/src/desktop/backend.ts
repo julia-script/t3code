@@ -13,6 +13,8 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import { FetchHttpClient } from "effect/http";
 
+declare const __T3CODE_REPO__: string;
+
 export interface Backend {
   readonly httpBaseUrl: string;
   readonly wsBaseUrl: string;
@@ -41,8 +43,7 @@ function serverEntry(repo: string): string {
 
 export async function startBackend(): Promise<Backend> {
   const env = process.env;
-  // Run from apps/silk-desktop, as `silk task dev` does, or name the checkout.
-  const repo = resolve(env.T3CODE_REPO ?? join(process.cwd(), "../.."));
+  const repo = resolve(env.T3CODE_REPO ?? __T3CODE_REPO__);
   // Its own T3 home by default, so the demo never opens the home of an installed T3 Code.
   const t3Home = env.T3CODE_HOME ?? join(homedir(), ".t3-silk");
   mkdirSync(t3Home, { recursive: true });

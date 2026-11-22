@@ -68,6 +68,8 @@ const reactCompiler: Plugin = {
 };
 
 export default defineConfig({
+  // The checkout the release program starts its T3 server from, wherever it is launched.
+  define: { __T3CODE_REPO__: JSON.stringify(resolve(web, "../..")) },
   resolve: {
     alias: [
       { find: /^~\//, replacement: `${web}/src/` },
