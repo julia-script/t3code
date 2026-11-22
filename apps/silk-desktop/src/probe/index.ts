@@ -222,6 +222,49 @@ export function watchInput() {
   log("input watch on");
 }
 
+// T3_SILK_PROBE_MUTATIONS=1: every T3_SILK_PROBE_MUTATIONS_MS (2000), the mutations the app made in
+// that window grouped by kind, attribute and target, and the running animations.
+export function watchMutations() {
+  if (process.env.T3_SILK_PROBE_MUTATIONS !== "1") return;
+  const ms = Number(process.env.T3_SILK_PROBE_MUTATIONS_MS ?? 2000);
+  const label = (node: Node | null) => {
+    if (!(node instanceof Element)) return node ? node.nodeName : "none";
+    const first = node.classList?.[0];
+    return `${node.localName}${first ? `.${first}` : ""}`;
+  };
+  let counts = new Map<string, number>();
+  new MutationObserver((records) => {
+    for (const record of records) {
+      const key =
+        record.type === "attributes"
+          ? `attr ${record.attributeName} on ${label(record.target)}`
+          : record.type === "childList"
+            ? `children +${record.addedNodes.length} -${record.removedNodes.length} on ${label(record.target)}`
+            : `text on ${label(record.target.parentNode)}`;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }).observe(document, { attributes: true, attributeOldValue: true, childList: true, characterData: true, subtree: true });
+  setInterval(() => {
+    const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 25);
+    counts = new Map();
+    log("mutations window", JSON.stringify(top));
+    const animations = typeof document.getAnimations === "function" ? document.getAnimations() : [];
+    if (animations.length > 0) {
+      log(
+        "animations",
+        JSON.stringify(
+          animations.slice(0, 25).map((a) => [
+            (a as CSSAnimation).animationName ?? (a as CSSTransition).transitionProperty ?? a.id,
+            a.playState,
+            label((a.effect as KeyframeEffect | null)?.target ?? null),
+          ]),
+        ),
+      );
+    }
+  }, ms);
+  log("mutation watch on");
+}
+
 const ROUTES = [
   "/",
   "/new",
