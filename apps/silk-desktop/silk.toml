@@ -7,11 +7,11 @@ silk-version = "0.1.0-dev.96+8a1225a6d72a"
 
 # The app is JavaScript, in web/. Silk only builds the tasks, which build and run the app.
 [dependencies]
-silkui = { git = "https://github.com/silk-lang/silkui.git", rev = "d01f598de25c5e5ea1be09639f74c1211ff46126", path = "modules/silkui", package = "silkui" }
-silkui_window = { git = "https://github.com/silk-lang/silkui.git", rev = "d01f598de25c5e5ea1be09639f74c1211ff46126", path = "modules/silkui/window", package = "silkui-window" }
-silkui_window_node = { git = "https://github.com/silk-lang/silkui.git", rev = "d01f598de25c5e5ea1be09639f74c1211ff46126", path = "modules/silkui/window/node", package = "silkui-window-node" }
-ui_tree = { git = "https://github.com/silk-lang/silkui.git", rev = "d01f598de25c5e5ea1be09639f74c1211ff46126", path = "modules/tree", package = "ui-tree" }
-ui_inspect_server = { git = "https://github.com/silk-lang/silkui.git", rev = "d01f598de25c5e5ea1be09639f74c1211ff46126", path = "modules/inspect/server", package = "ui-inspect-server" }
+silkui = { git = "https://github.com/silk-lang/silkui.git", rev = "7d19dbb84a909d3dc88ea0d7392cf80fc8718bf8", path = "modules/silkui", package = "silkui" }
+silkui_window = { git = "https://github.com/silk-lang/silkui.git", rev = "7d19dbb84a909d3dc88ea0d7392cf80fc8718bf8", path = "modules/silkui/window", package = "silkui-window" }
+silkui_window_node = { git = "https://github.com/silk-lang/silkui.git", rev = "7d19dbb84a909d3dc88ea0d7392cf80fc8718bf8", path = "modules/silkui/window/node", package = "silkui-window-node" }
+ui_tree = { git = "https://github.com/silk-lang/silkui.git", rev = "7d19dbb84a909d3dc88ea0d7392cf80fc8718bf8", path = "modules/tree", package = "ui-tree" }
+ui_inspect_server = { git = "https://github.com/silk-lang/silkui.git", rev = "7d19dbb84a909d3dc88ea0d7392cf80fc8718bf8", path = "modules/inspect/server", package = "ui-inspect-server" }
 silkjs = { git = "https://github.com/silk-lang/lib-silkjs.git", rev = "258e3fb55d59096d539a6186a833aec6b99e8b36", path = "modules/engine", package = "silkjs-engine" }
 node_runtime = { git = "https://github.com/silk-lang/lib-silkjs.git", rev = "258e3fb55d59096d539a6186a833aec6b99e8b36", path = "modules/runtime", package = "silkjs-runtime" }
 
