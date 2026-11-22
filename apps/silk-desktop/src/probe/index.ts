@@ -243,7 +243,7 @@ export function watchMutations() {
             : `text on ${label(record.target.parentNode)}`;
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
-  }).observe(document.documentElement, { attributes: true, attributeOldValue: true, childList: true, characterData: true, subtree: true });
+  }).observe(document, { attributes: true, attributeOldValue: true, childList: true, characterData: true, subtree: true });
   setInterval(() => {
     const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 25);
     counts = new Map();
