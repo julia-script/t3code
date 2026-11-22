@@ -265,6 +265,71 @@ export function watchMutations() {
   log("mutation watch on");
 }
 
+// T3_SILK_PROBE_SCROLL=1: who writes scroll positions, and what the scrolled element reports on
+// every scroll event and every frame for 3 s after one.
+export function watchScroll() {
+  if (process.env.T3_SILK_PROBE_SCROLL !== "1") return;
+  const label = (node: unknown) => {
+    if (!(node instanceof Element)) return node === window ? "window" : String(node);
+    const first = node.classList?.[0];
+    return `${node.localName}${first ? `.${first}` : ""}${node.id ? `#${node.id}` : ""}`;
+  };
+  const stack = () => (new Error().stack ?? "").split("\n").slice(2, 6).map((line) => line.trim()).join(" | ");
+  const top = Object.getOwnPropertyDescriptor(Element.prototype, "scrollTop");
+  if (top?.set) {
+    Object.defineProperty(Element.prototype, "scrollTop", {
+      ...top,
+      set(value: number) {
+        log("scroll write scrollTop", label(this), value, stack());
+        top.set!.call(this, value);
+      },
+    });
+  }
+  for (const owner of [Element.prototype, window] as unknown as Record<string, (...args: unknown[]) => unknown>[]) {
+    for (const name of ["scrollTo", "scrollBy", "scrollIntoView"]) {
+      const original = owner[name];
+      if (typeof original !== "function") continue;
+      owner[name] = function (this: unknown, ...args: unknown[]) {
+        log(`scroll write ${name}`, label(this), JSON.stringify(args), stack());
+        return original.apply(this, args);
+      };
+    }
+  }
+  let scroller: Element | null = null;
+  let until = 0;
+  const report = (when: string) => {
+    if (!scroller) return;
+    const box = scroller.getBoundingClientRect();
+    let row: Element | null = null;
+    for (const element of scroller.querySelectorAll("[data-index], [role='listitem'], article")) {
+      if (element.getBoundingClientRect().bottom > box.top) { row = element; break; }
+    }
+    log(
+      `scroll ${when}`,
+      label(scroller),
+      `top=${scroller.scrollTop} height=${scroller.scrollHeight} client=${scroller.clientHeight}`,
+      `row=${row ? `${label(row)}@${(row.getBoundingClientRect().top - box.top).toFixed(1)}` : "none"}`,
+    );
+  };
+  const frame = () => {
+    report("frame");
+    if (performance.now() < until) requestAnimationFrame(frame);
+  };
+  document.addEventListener(
+    "scroll",
+    (event) => {
+      const target = event.target instanceof Element ? event.target : document.scrollingElement;
+      if (target !== scroller) scroller = target;
+      report("event");
+      const idle = performance.now() >= until;
+      until = performance.now() + 3000;
+      if (idle) requestAnimationFrame(frame);
+    },
+    true,
+  );
+  log("scroll watch on");
+}
+
 const ROUTES = [
   "/",
   "/new",
