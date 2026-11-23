@@ -9,7 +9,8 @@ process, so `window.desktopBridge` is plain functions (`src/desktop/bridge.ts`).
 vp i                    # from the repository root
 cd apps/silk-desktop
 ../../node_modules/.bin/vp build   # the bundle, which the Silk tasks take as it is
-silk task dev           # opens the window
+silk dev                # opens the window
+silk build --release    # builds the release program into build/<triple>/release/
 ```
 
 The app keeps its state in `~/.t3-silk` (`T3CODE_HOME` overrides it), never in an installed
